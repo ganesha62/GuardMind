@@ -125,12 +125,12 @@ const Chatbot = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 flex flex-col h-screen">
-      <h1 className="text-4xl font-bold text-white mb-8">Mental Health Chatbot</h1>
+    <div className="flex flex-col h-screen bg-gray-900">
+      <h1 className="text-2xl sm:text-4xl font-bold text-white p-4">Mental Health Chatbot</h1>
       
-      <div className="flex-grow flex space-x-4 overflow-hidden">
+      <div className="flex-grow flex flex-col sm:flex-row overflow-hidden">
         {!isGuest && (
-          <div className="w-1/4 bg-gray-800 p-4 rounded-lg overflow-y-auto">
+          <div className="w-full sm:w-1/4 bg-gray-800 p-4 overflow-y-auto">
             <h2 className="text-xl font-semibold text-white mb-4">Chat History</h2>
             <button
               onClick={startNewChat}
@@ -143,12 +143,12 @@ const Chatbot = () => {
                 key={chat.id}
                 className="flex justify-between items-center cursor-pointer bg-gray-700 hover:bg-gray-600 p-2 rounded mb-2 text-white"
               >
-                <span onClick={() => loadChat(chat.id)}>
+                <span onClick={() => loadChat(chat.id)} className="truncate flex-grow mr-2">
                   {new Date(chat.created_at).toLocaleString()}
                 </span>
                 <button
                   onClick={(e) => deleteChat(chat.id, e)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500 hover:text-red-700 flex-shrink-0"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -156,17 +156,24 @@ const Chatbot = () => {
             ))}
           </div>
         )}
-        <div className={`flex-grow flex flex-col bg-gray-800 rounded-lg overflow-hidden ${isGuest ? 'w-full' : ''}`}>
-          <div className="flex-grow p-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 300px)', backgroundImage: `url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPkiuItwmZIyMoc0eBJxifrRhSKUe5ZMYtlyS9oMuErc3xlGfRZdlfXaWSs31yLN-WZ4U&usqp=CAU')`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }}>
+        <div className={`flex-grow flex flex-col bg-gray-800 ${isGuest ? 'w-full' : ''}`}>
+          <div 
+            className="flex-grow p-4 overflow-y-auto" 
+            style={{ 
+              maxHeight: 'calc(100vh - 240px)', 
+              backgroundImage: `url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPkiuItwmZIyMoc0eBJxifrRhSKUe5ZMYtlyS9oMuErc3xlGfRZdlfXaWSs31yLN-WZ4U&usqp=CAU')`, 
+              backgroundRepeat: 'no-repeat', 
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`mb-4 ${
-                  message.sender === 'user' ? 'text-right' : 'text-left'
-                }`}
+                className={`mb-4 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}
               >
                 <span
-                  className={`inline-block p-2 rounded-lg ${
+                  className={`inline-block p-2 rounded-lg max-w-[80%] ${
                     message.sender === 'user'
                       ? 'bg-dark-maroon text-white'
                       : 'bg-gray-700 text-white'
@@ -202,13 +209,14 @@ const Chatbot = () => {
       
       <button
         onClick={() => navigate('/')}
-        className="mt-8 bg-dark-maroon text-white font-bold py-2 px-4 rounded hover:bg-light-maroon transition duration-300"
+        className="m-4 bg-dark-maroon text-white font-bold py-2 px-4 rounded hover:bg-light-maroon transition duration-300"
       >
         Back to Home
       </button>
     </div>
   );
 };
+
 
 export default Chatbot;
 

@@ -19,36 +19,42 @@ function ProgressTracker() {
   const getTestMessages = (title, score) => {
     score = parseInt(score);
     let message = "";
+    
     if (title.toLowerCase() === "depression test") {
-      message += ` Score: ${score}/27`;
+      message += ` <b>Score:</b> ${score}/27<br>`;
+      
       if (score > 20) {
-        message = "Depression Test: Severe Depression:  (Your responses indicate that you may be at severe risk of harming yourself. If you need immediate help, you can reach the SOS Page)";
+        message += "<b>Depression Test:</b><br>Severe Depression: (Your responses indicate that you may be at severe risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
       } else if (score > 15) {
-        message = "Depression Test: Moderately Severe Depression: (Your responses indicate that you may be at severe risk of harming yourself. If you need immediate help, you can reach the SOS Page)";
+        message += "<b>Depression Test:</b><br>Moderately Severe Depression: (Your responses indicate that you may be at severe risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
       } else if (score > 10) {
-        message = "Depression Test: Moderate Depression: (Your responses indicate that you may be at moderate risk of harming yourself. If you need immediate help, you can reach the SOS Page)";
+        message += "<b>Depression Test:</b><br>Moderate Depression: (Your responses indicate that you may be at moderate risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
       } else if (score > 5) {
-        message = "Depression Test: Mild Depression: (Your responses indicate that you may be at lesser risk of harming yourself. If you need immediate help, you can reach the SOS Page)";
+        message += "<b>Depression Test:</b><br>Mild Depression: (Your responses indicate that you may be at lesser risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
       } else {
-        message = "Depression Test: No Depression: (Your responses indicate that you are mentally healthy and not at risk of harming yourself. If you need immediate help, you can reach the SOS Page)";
+        message += "<b>Depression Test:</b><br>No Depression: (Your responses indicate that you are mentally healthy and not at risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
       }
+      
     } else if (title.toLowerCase() === "anxiety test") {
       if (score > 15) {
-        message = "Anxiety Test: Severe Anxiety";
+        message += "<b>Anxiety Test:</b><br>Severe Anxiety";
       } else if (score > 10) {
-        message = "Anxiety Test: Moderate Anxiety";
+        message += "<b>Anxiety Test:</b><br>Moderate Anxiety";
       } else if (score > 5) {
-        message = "Anxiety Test: Mild Anxiety";
+        message += "<b>Anxiety Test:</b><br>Mild Anxiety";
       } else {
-        message = "Anxiety Test: No Anxiety";
+        message += "<b>Anxiety Test:</b><br>No Anxiety";
       }
-      message += ` - Score: ${score}/21`;
+      message += ` - <b>Score:</b> ${score}/21<br>`;
     } else {
-      message = "Test Title not found";
+      message = "<b>Test Title not found</b><br>";
     }
-    message += ". These results are not meant to be a diagnosis. You can meet with a doctor or therapist to get a diagnosis and/or access therapy or medications. Sharing these results with someone you trust can be a great place to start.";
+    
+    message += "<br><i>These results are not meant to be a diagnosis. You can meet with a doctor or therapist to get a diagnosis and/or access therapy or medications. Sharing these results with someone you trust can be a great place to start.</i>";
+    
     return message;
   };
+  
 
   const handleStartTest = (test) => {
     setCurrentTest(test);
@@ -92,14 +98,14 @@ function ProgressTracker() {
       )}
 
       {currentTest && questions.length > 0 && !result && (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-blue-600 text-white text-xl font-semibold p-4">
+        <div className="bg-blackishbg text-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-blackishbginside text-white text-xl font-semibold p-4">
             {currentTest}
           </div>
           <div className="p-6">
             {questions.map((question, index) => (
               <div key={index} className="mb-6">
-                <p className="mb-2 text-lg font-medium text-gray-700">{question.question}</p>
+                <p className="mb-2 text-lg font-medium text-white">{question.question}</p>
                 <div className="space-y-2">
                   {question.options.map((option, optionIndex) => (
                     <label key={optionIndex} className="flex items-center space-x-3 cursor-pointer">
@@ -110,7 +116,7 @@ function ProgressTracker() {
                         onChange={(e) => handleAnswer(index, parseInt(e.target.value))}
                         className="form-radio h-5 w-5 text-blue-600"
                       />
-                      <span className="text-gray-700">{option.text}</span>
+                      <span className="text-white">{option.text}</span>
                     </label>
                   ))}
                 </div>
@@ -127,12 +133,15 @@ function ProgressTracker() {
       )}
 
       {result && (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-blue-600 text-white text-xl font-semibold p-4">
+        <div className="bg-blackishbg text-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-blackishbginside text-white text-xl font-semibold p-4">
             Test Result
           </div>
           <div className="p-6">
-          <b>      <p className="text-gray-700 mb-4">{result}</p></b>
+          <div 
+        className="text-white mb-4" 
+        dangerouslySetInnerHTML={{ __html: result }} // Use dangerouslySetInnerHTML here
+      />
             
           </div>
         </div>
