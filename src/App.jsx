@@ -11,6 +11,8 @@ import ResourceLibrary from './components/ResourceLibrary';
 import ProgressTracker from './components/ProgressTracker';
 import DailyJournal from './components/DailyJournal';
 import CrisisSupport from './components/CrisisSupport';
+import PPTMDashboard from './components/PPTMDashboard';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,7 +26,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-blackishbg" style={{backgroundImage:'url(https://static.vecteezy.com/system/resources/thumbnails/011/478/774/small_2x/loop-flicker-orange-red-particles-stars-black-background-free-video.jpg)'}}>
+      <div className="min-h-screen bg-gradient-to-br from-black via-indigo-900 to-purple-900 p-4" >
         <Routes>
           <Route 
             path="/auth" 
@@ -61,6 +63,7 @@ function App() {
                   <Route path="/progress"   element={isLoggedIn ? <ProgressTracker /> : <Navigate to="/auth" />} />
         <Route path="/journal"   element={isLoggedIn ? <DailyJournal /> : <Navigate to="/auth" />} /> 
         <Route path="/crisis"   element={isLoggedIn ? <CrisisSupport /> : <Navigate to="/auth" />} />
+<Route path="/pptm" element={isLoggedIn ?<PPTMDashboard />: <Navigate to="/auth" />} />
         </Routes>
 
         

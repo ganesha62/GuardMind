@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-// Import the JSON data directly
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import testsData from './tests.json';
 
 function ProgressTracker() {
@@ -10,6 +9,7 @@ function ProgressTracker() {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState(null);
+  const [scoreData, setScoreData] = useState({ score: 0, maxScore: 0 });
 
   const getQuestions = (title) => {
     const test = testsData.tests.find(test => test.title === title);
@@ -17,25 +17,28 @@ function ProgressTracker() {
   };
 
   const getTestMessages = (title, score) => {
-    score = parseInt(score);
+    const maxScore = title.toLowerCase() === "depression test" ? 27 : 21;
+    setScoreData({ score, maxScore });
+    
     let message = "";
     
     if (title.toLowerCase() === "depression test") {
-      message += ` <b>Score:</b> ${score}/27<br>`;
+      message += `<b>Score:</b> ${score}/${maxScore}<br>`;
       
       if (score > 20) {
-        message += "<b>Depression Test:</b><br>Severe Depression: (Your responses indicate that you may be at severe risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
+        message += "<b>Depression Test:</b><br>Severe Depression";
       } else if (score > 15) {
-        message += "<b>Depression Test:</b><br>Moderately Severe Depression: (Your responses indicate that you may be at severe risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
+        message += "<b>Depression Test:</b><br>Moderately Severe Depression";
       } else if (score > 10) {
-        message += "<b>Depression Test:</b><br>Moderate Depression: (Your responses indicate that you may be at moderate risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
+        message += "<b>Depression Test:</b><br>Moderate Depression";
       } else if (score > 5) {
-        message += "<b>Depression Test:</b><br>Mild Depression: (Your responses indicate that you may be at lesser risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
+        message += "<b>Depression Test:</b><br>Mild Depression";
       } else {
-        message += "<b>Depression Test:</b><br>No Depression: (Your responses indicate that you are mentally healthy and not at risk of harming yourself. If you need immediate help, you can reach the <a href='#'>SOS Page</a>)";
+        message += "<b>Depression Test:</b><br>No Depression";
       }
-      
     } else if (title.toLowerCase() === "anxiety test") {
+      message += `<b>Score:</b> ${score}/${maxScore}<br>`;
+      
       if (score > 15) {
         message += "<b>Anxiety Test:</b><br>Severe Anxiety";
       } else if (score > 10) {
@@ -45,21 +48,18 @@ function ProgressTracker() {
       } else {
         message += "<b>Anxiety Test:</b><br>No Anxiety";
       }
-      message += ` - <b>Score:</b> ${score}/21<br>`;
-    } else {
-      message = "<b>Test Title not found</b><br>";
     }
     
-    message += "<br><i>These results are not meant to be a diagnosis. You can meet with a doctor or therapist to get a diagnosis and/or access therapy or medications. Sharing these results with someone you trust can be a great place to start.</i>";
+    message += "<br><br><i>These results are not meant to be a diagnosis. You can meet with a doctor or therapist to get a diagnosis and/or access therapy or medications. Sharing these results with someone you trust can be a great place to start.</i>";
     
     return message;
   };
-  
 
   const handleStartTest = (test) => {
     setCurrentTest(test);
     setAnswers({});
     setResult(null);
+    setScoreData({ score: 0, maxScore: 0 });
     setQuestions(getQuestions(test));
   };
 
@@ -73,21 +73,37 @@ function ProgressTracker() {
     setResult(scoreMessage);
   };
 
+  // Data for visualization
+  const chartData = [
+    { 
+      name: currentTest || "Score",
+      Score: scoreData.score,
+      "Max Score": scoreData.maxScore
+    }
+  ];
+
+  const pieData = [
+    { name: "Score", value: scoreData.score },
+    { name: "Remaining", value: scoreData.maxScore - scoreData.score }
+  ];
+
+  const COLORS = ['#4CAF50', '#FF5252'];
+
   return (
     <div className="container mx-auto px-4 py-8 bg-blackishbginside min-h-screen" style={{backgroundImage: 'url("https://media.istockphoto.com/id/1478776181/video/flying-pink-neon-question-marks-on-a-black-background-3d-animation-question-mark-looping.jpg?s=640x640&k=20&c=5iaBIXjs7ydswVcvKqjjqRySe6ksY2njjWn4h3SYQFQ=")'}}>
-      <h1 className="text-4xl font-bold text-white mb-8 text-center">Mental Health Tracker</h1>
+     <h1 className="text-4xl font-bold text-white mb-8 text-center">Mental Health Tracker</h1>
       
       {!currentTest && !result && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {testsData.tests.map((test) => (
-            <div key={test.title} className="bg-blackishbginside rounded-lg shadow-md overflow-hidden">
-              <div className="bg-blackishbg text-white text-xl font-semibold p-4">
+            <div key={test.title} className="bg-white/10 backdrop-blur-md rounded-lg shadow-lg overflow-hidden">
+              <div className="bg-white/20 text-white text-xl font-semibold p-4">
                 {test.title}
               </div>
               <div className="p-6">
                 <button
                   onClick={() => handleStartTest(test.title)}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out"
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
                 >
                   Start Test
                 </button>
@@ -98,8 +114,8 @@ function ProgressTracker() {
       )}
 
       {currentTest && questions.length > 0 && !result && (
-        <div className="bg-blackishbg text-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-blackishbginside text-white text-xl font-semibold p-4">
+        <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white/20 text-white text-xl font-semibold p-4">
             {currentTest}
           </div>
           <div className="p-6">
@@ -124,7 +140,8 @@ function ProgressTracker() {
             ))}
             <button
               onClick={handleSubmit}
-              className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-300 ease-in-out mt-4"
+              disabled={Object.keys(answers).length !== questions.length}
+              className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Submit
             </button>
@@ -133,23 +150,68 @@ function ProgressTracker() {
       )}
 
       {result && (
-        <div className="bg-blackishbg text-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-blackishbginside text-white text-xl font-semibold p-4">
+        <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white/20 text-white text-xl font-semibold p-4">
             Test Result
           </div>
           <div className="p-6">
-          <div 
-        className="text-white mb-4" 
-        dangerouslySetInnerHTML={{ __html: result }} // Use dangerouslySetInnerHTML here
-      />
-            
+            <div 
+              className="text-white mb-4" 
+              dangerouslySetInnerHTML={{ __html: result }} 
+            />
+            {scoreData.score > 0 && (
+              <div className="mt-8">
+                <h2 className="text-2xl font-bold text-white mb-4">Score Visualization</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-white/20 p-4 rounded-lg flex justify-center">
+                    <PieChart width={300} height={300}>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </div>
+                  <div className="bg-white/20 p-4 rounded-lg flex justify-center">
+                    <BarChart width={300} height={300} data={chartData}>
+                      <XAxis dataKey="name" stroke="#fff" />
+                      <YAxis stroke="#fff" />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="Score" fill="#4CAF50" />
+                      <Bar dataKey="Max Score" fill="#FF5252" />
+                    </BarChart>
+                  </div>
+                </div>
+              </div>
+            )}
+            <button
+              onClick={() => {
+                setCurrentTest(null);
+                setResult(null);
+                setScoreData({ score: 0, maxScore: 0 });
+              }}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300 mt-4"
+            >
+              Back to Tests
+            </button>
           </div>
         </div>
       )}
 
       <button
         onClick={() => navigate('/')}
-        className="mt-8 bg-gray-500 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 transition duration-300 ease-in-out block mx-auto"
+        className="mt-8 bg-gray-500 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 transition duration-300 block mx-auto"
       >
         Back to Home
       </button>

@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { Trash2 } from 'lucide-react';
-import {apiClient} from '../components/Config.js';
+import { Trash2, Mic, MicOff } from 'lucide-react';
+import { apiClient } from '../components/Config.js';
 
 const Chatbot = () => {
   const navigate = useNavigate();
@@ -10,8 +9,16 @@ const Chatbot = () => {
   const [input, setInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
-  const messagesEndRef = useRef(null);
   const [isGuest, setIsGuest] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  // Initialize speech recognition
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
 
   useEffect(() => {
     const username = localStorage.getItem('username');
@@ -25,6 +32,28 @@ const Chatbot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Set up speech recognition handlers
+  recognition.onstart = () => {
+    setIsListening(true);
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    setInput(transcript);
+    setIsListening(false);
+    // Automatically send message after voice input
+    handleSendVoiceMessage(transcript);
+  };
+
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error:', event.error);
+    setIsListening(false);
+  };
+
+  recognition.onend = () => {
+    setIsListening(false);
+  };
 
   const fetchChatHistory = async () => {
     try {
@@ -58,6 +87,36 @@ const Chatbot = () => {
       const token = localStorage.getItem('token');
       const response = await apiClient.post('/chat', {
         message: input,
+        chat_id: isGuest ? null : currentChatId
+      }, {
+        headers: {
+          'Authorization': `Bearer ${isGuest ? 'guest' : token}`
+        }
+      });
+      
+      setMessages(prevMessages => [...prevMessages, { text: response.data.response, sender: 'bot' }]);
+      if (!isGuest && response.data.chat_id) {
+        setCurrentChatId(response.data.chat_id);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      if (error.response && error.response.status === 401) {
+        navigate('/login');
+      }
+    }
+  };
+
+  const handleSendVoiceMessage = async (voiceInput) => {
+    if (!voiceInput.trim()) return;
+
+    const newMessage = { text: voiceInput, sender: 'user' };
+    setMessages([...messages, newMessage]);
+    setInput('');
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await apiClient.post('/chat', {
+        message: voiceInput,
         chat_id: isGuest ? null : currentChatId
       }, {
         headers: {
@@ -124,8 +183,18 @@ const Chatbot = () => {
     }
   };
 
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      recognition.stop();
+      setIsListening(false);
+    } else {
+      recognition.start();
+      setIsListening(true);
+    }
+  };
+
   return (
-    <div className="flex flex-col h-screen bg-gray-900">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-black via-indigo-900 to-purple-900 p-4">
       <h1 className="text-2xl sm:text-4xl font-bold text-white p-4">Mental Health Chatbot</h1>
       
       <div className="flex-grow flex flex-col sm:flex-row overflow-hidden">
@@ -194,8 +263,19 @@ const Chatbot = () => {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                 className="flex-grow px-4 py-2 bg-gray-800 text-white rounded-lg focus:outline-none"
-                placeholder="Type your message..."
+                placeholder={isListening ? 'Listening...' : 'Type your message...'}
               />
+              <button
+                onClick={toggleVoiceInput}
+                className={`p-2 rounded ${
+                  isListening 
+                    ? 'bg-red-600 hover:bg-red-700' 
+                    : 'bg-gray-700 hover:bg-gray-600'
+                } transition duration-300`}
+                title={isListening ? "Stop voice input" : "Start voice input"}
+              >
+                {isListening ? <MicOff className="text-white" /> : <Mic className="text-white" />}
+              </button>
               <button
                 onClick={handleSend}
                 className="bg-dark-maroon text-white font-bold py-2 px-4 rounded hover:bg-light-maroon transition duration-300"
@@ -217,6 +297,4 @@ const Chatbot = () => {
   );
 };
 
-
 export default Chatbot;
-

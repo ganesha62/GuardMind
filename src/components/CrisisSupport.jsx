@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, AlertTriangle } from 'lucide-react';
+import { Phone, AlertTriangle, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const CrisisSupport = () => {
@@ -21,47 +21,74 @@ const CrisisSupport = () => {
   ];
 
   return (
-    <div className="bg-blackishbg container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-white mb-8">Crisis Support</h1>
-      
-      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-8" role="alert">
-        <div className="flex">
-          <AlertTriangle className="h-6 w-6 mr-2" />
+    <div className="bg-gradient-to-br from-black via-indigo-900 to-purple-900 p-4 min-h-screen">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-5xl font-bold text-white mb-8 text-center">
+          Crisis Support
+        </h1>
+
+        {/* Emergency Alert */}
+        <div className="bg-red-900/20 border-l-4 border-red-500 text-red-200 p-6 rounded-lg mb-8 flex items-start space-x-4">
+          <AlertTriangle className="h-8 w-8 flex-shrink-0" />
           <div>
-            <p className="font-bold">Emergency</p>
-            <p>If you or someone you know is in immediate danger, please call your local emergency services immediately.</p>
+            <p className="font-bold text-lg">Emergency</p>
+            <p className="text-sm">
+              If you or someone you know is in immediate danger, please call your local emergency services immediately.
+            </p>
           </div>
         </div>
-      </div>
 
-      <div className="bg-blackishbginside text-white shadow-md rounded-lg p-6 mb-8">
-        <h2 className="text-2xl font-bold mb-4">Mental Health Helplines</h2>
-        <ul className="space-y-4">
-          {helplines.map((helpline, index) => (
-            <li key={index} className="flex items-center">
-              <Phone className="mr-2" />
-              <span>
-                <strong>{helpline.country}:</strong> {helpline.name} - {helpline.number}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+        {/* Helplines Section */}
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 mb-8 shadow-2xl">
+          <h2 className="text-3xl font-bold text-white mb-6 flex items-center">
+            <Phone className="mr-3" />
+            Mental Health Helplines
+          </h2>
+          <ul className="space-y-4">
+            {helplines.map((helpline, index) => (
+              <li
+                key={index}
+                className="bg-gray-700/30 hover:bg-gray-700/50 transition-all duration-300 p-4 rounded-lg flex items-center space-x-4"
+              >
+                <span className="text-white flex-1">
+                  <strong className="text-indigo-300">{helpline.country}:</strong>{' '}
+                  {helpline.name} - <span className="text-green-400">{helpline.number}</span>
+                </span>
+                <a
+                  href={`tel:${helpline.number}`}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-300"
+                >
+                  Call Now
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-      <div className="bg-blackishbginside text-white shadow-md rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">What to Do in a Mental Health Emergency</h2>
-        <ol className="list-decimal list-inside space-y-2">
-          {emergencySteps.map((step, index) => (
-            <li key={index}>{step}</li>
-          ))}
-        </ol>
-      </div><br></br>
-      <button
-        onClick={() => navigate('/')}
-        className="mb-4 bg-dark-maroonn text-white font-bold py-2 px-4 rounded hover:bg-light-maroon transition duration-300"
-      >
-        Back to Home
-      </button>
+        {/* Emergency Steps Section */}
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-2xl">
+          <h2 className="text-3xl font-bold text-white mb-6 flex items-center">
+            <AlertTriangle className="mr-3" />
+            What to Do in a Mental Health Emergency
+          </h2>
+          <ol className="list-decimal list-inside space-y-3 text-gray-200">
+            {emergencySteps.map((step, index) => (
+              <li key={index} className="bg-gray-700/30 p-4 rounded-lg">
+                {step}
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* Back to Home Button */}
+        <button
+          onClick={() => navigate('/')}
+          className="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2 transition duration-300"
+        >
+          <Home className="h-5 w-5" />
+          <span>Back to Home</span>
+        </button>
+      </div>
     </div>
   );
 };
